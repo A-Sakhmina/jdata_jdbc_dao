@@ -1,25 +1,27 @@
 package com.sakh.dao.repo;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
 public class ProductRepositoryImpl implements ProductRepository {
 
     private String scriptFile = "customers_orders_task3.sql";
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @PersistenceContext
+    EntityManager entityManager;
 
-    public ProductRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    public ProductRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     private static String read(String scriptFileName) {
@@ -34,8 +36,8 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public List<String> getProductName(String name) {
-        return namedParameterJdbcTemplate.queryForList(read(scriptFile),
-                Map.of("name", name),
-                String.class);
+        Query query = entityManager.createQuery(read(scriptFile));
+        query.setParameter("name", name);
+        return query.getResultList();
     }
 }

@@ -1,6 +1,5 @@
-select product_name
-from orders o
-join customers c
-on o.customer_id = c.id
-where c.name iLIKE :name
-group by product_name;
+select o.productName
+from Order o
+         join Customer c on o.customer.id = c.id
+where lower(c.name) like lower(:name)
+group by o.productName
